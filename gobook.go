@@ -85,6 +85,21 @@ func loadBook(cfgPath string) (*Book, error) {
 	return &book, nil
 }
 
+var (
+	langs = map[string]map[string]string{
+		"zh_CN": {
+			"homepage":  "首页",
+			"return":    "返回书本首页",
+			"published": "GoBook出品",
+		},
+		"en_US": {
+			"homepage":  "Home Page",
+			"return":    "return homepage",
+			"published": "GoBook published",
+		},
+	}
+)
+
 func MakeBook(dstDir, srcDir string) error {
 	book, err := loadBook(filepath.Join(srcDir, "book.json"))
 	if err != nil {
@@ -126,7 +141,9 @@ func MakeBook(dstDir, srcDir string) error {
 		"content":   template.HTML(readmeHTML),
 		"levelPath": levelPath,
 		"book":      book,
-		"title":     "首页",
+		"title":     langs[book.Lang]["homepage"],
+		"return":    langs[book.Lang]["return"],
+		"published": langs[book.Lang]["published"],
 	})
 	if err != nil {
 		return err
@@ -192,6 +209,8 @@ func MakeBook(dstDir, srcDir string) error {
 			"levelPath": levelPath,
 			"book":      book,
 			"title":     "",
+			"return":    langs[book.Lang]["return"],
+			"published": langs[book.Lang]["published"],
 		})
 		if err != nil {
 			return err
