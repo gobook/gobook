@@ -85,12 +85,13 @@ func loadBook(cfgPath string) (*Book, error) {
 	return &book, nil
 }
 
-func makeBook(dstDir, srcDir string) error {
-	book, err := loadBook(filepath.Join(srcDir, "config.json"))
+func MakeBook(dstDir, srcDir string) error {
+	book, err := loadBook(filepath.Join(srcDir, "book.json"))
 	if err != nil {
 		return err
 	}
 
+	os.RemoveAll(dstDir)
 	os.MkdirAll(dstDir, os.ModePerm)
 
 	mdSummary := filepath.Join(srcDir, "SUMMARY.md")
@@ -102,7 +103,7 @@ func makeBook(dstDir, srcDir string) error {
 	summary = strings.Replace(summary, `README.md"`, `index.html"`, -1)
 	summary = strings.Replace(summary, `.md"`, `.html"`, -1)
 
-	tmpl, err := loadTemplate(filepath.Join(srcDir, "themes", "gitbook", "templates", "frame.html"))
+	tmpl, err := loadTemplate("./themes/gitbook/templates/frame.html")
 	if err != nil {
 		return err
 	}
@@ -209,7 +210,7 @@ func makeBook(dstDir, srcDir string) error {
 		return nil
 	})
 
-	err = CopyDir(filepath.Join(srcDir, "themes", "gitbook", "asserts"),
+	err = CopyDir("./themes/gitbook/asserts",
 		filepath.Join(dstDir, "gitbook"))
 
 	return err
