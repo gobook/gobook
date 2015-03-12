@@ -232,5 +232,7 @@ func MakeBook(dstDir, srcDir string) error {
 	err = CopyDir("./themes/gitbook/asserts",
 		filepath.Join(dstDir, "gitbook"))
 
+	Copy(filepath.Join(srcDir, "cover.jpg"), filepath.Join(dstDir, "cover.jpg"))
+
 	return err
 }
