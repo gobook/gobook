@@ -69,6 +69,7 @@ type Book struct {
 	Name   string `json:"name"`
 	Author string `json:"author"`
 	Lang   string `json:"lang"`
+	Cover  string `json:"cover"`
 	Desc   string `json:"desc"`
 }
 
@@ -100,10 +101,10 @@ var (
 	}
 )
 
-func MakeBook(dstDir, srcDir string) error {
+func MakeBook(dstDir, srcDir string) (*Book, error) {
 	book, err := loadBook(filepath.Join(srcDir, "book.json"))
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	os.RemoveAll(dstDir)
@@ -112,7 +113,7 @@ func MakeBook(dstDir, srcDir string) error {
 	mdSummary := filepath.Join(srcDir, "SUMMARY.md")
 	summary, err := makeSummary(mdSummary, "./")
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	summary = strings.Replace(summary, `README.md"`, `index.html"`, -1)
@@ -120,13 +121,13 @@ func MakeBook(dstDir, srcDir string) error {
 
 	tmpl, err := loadTemplate("./themes/gitbook/templates/frame.html")
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	mdReadme := filepath.Join(srcDir, "README.md")
 	readme, err := ioutil.ReadFile(mdReadme)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	readmeHTML := MarkdownToHtml(string(readme), blackfriday.HtmlRendererParameters{
@@ -146,13 +147,13 @@ func MakeBook(dstDir, srcDir string) error {
 		"published": langs[book.Lang]["published"],
 	})
 	if err != nil {
-		return err
+		return nil, err
 	}
 	var output = bf.Bytes()
 
 	f, err := os.Create(filepath.Join(dstDir, "index.html"))
 	if err != nil {
-		return err
+		return nil, err
 	}
 	defer f.Close()
 
@@ -229,10 +230,9 @@ func MakeBook(dstDir, srcDir string) error {
 		return nil
 	})
 
-	err = CopyDir("./themes/gitbook/asserts",
-		filepath.Join(dstDir, "gitbook"))
+	err = CopyDir("./themes/gitbook/asserts", filepath.Join(dstDir, "gitbook"))
 
 	Copy(filepath.Join(srcDir, "cover.jpg"), filepath.Join(dstDir, "cover.jpg"))
 
-	return err
+	return book, err
 }
